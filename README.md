@@ -26,14 +26,14 @@ Membuat Listeners dengan menggunakan syntax:
 ```php
     php artisan make:listener StoreUserLoginHistory --event=LoginHistory
 ```  
-Megenerate Events dan Listeners dengan menggunakan syntax:
+Megenerate Events dengan menggunakan syntax:
 ```php
     php artisan event:generate
 ```
 * Dengan menambahkan syntax tersebut, maka akan membuat sebuah folder baru dan file baru pada ```App```.  
 * Yang pertama, yaitu membuat folder ```Events``` yang didalamnya berisi file ```LoginHistory.php```.  
 * Yang kedua, yaitu membuat folder ```Listeners``` yang didalamnya berisi file ```StoreUserLoginHistory.php```.  
-* Selain membuat folder dan file baru, perintah selanjutnya yaitu megenerate ```Events``` dan ```Listeners```.
+* Selain membuat folder dan file baru, perintah selanjutnya yaitu megenerate ```Events```.
 4. Meregistrasi ```Events``` dan ```Listener``` secara manual
 ```php
     use App\Events\LoginHistory;
@@ -92,7 +92,7 @@ Megenerate Events dan Listeners dengan menggunakan syntax:
         return $saveHistory;
     });
 ```  
-5. Mendefinisikan class event di Events pada path ```App\Events\LoginHistory.php```
+5. Mendefinisikan ```class event``` pada path ```App\Events\LoginHistory.php```
 ```php
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -105,19 +105,54 @@ Megenerate Events dan Listeners dengan menggunakan syntax:
     }
 ```  
 * Kita perlu memasukkan syntax baru dari file ```LoginHistory.php``` yang awal atau default, yaitu dengan:
-    *  Membuat dan menginisialisasikan ```user``` sebagai ```public``` seperti ```public $user;```
-    *  Menambahkan syntax ```$user``` pada parameter ```public function __construct()```
-    *  Menambahkan syntax ```$this->user = $user;``` didalam fungsi ```public function __construct(){}```
-6. Mendefinisikan class listener di Listeners -> StoreUserLoginHistory
+    *  Membuat dan menginisialisasikan ```user``` sebagai ```public``` seperti ```public $user;```.
+    *  Menambahkan syntax ```$user``` pada parameter ```public function __construct()```.
+    *  Menambahkan syntax ```$this->user = $user;``` didalam fungsi ```public function __construct(){}```.
+6. Mendefinisikan ```class listener``` pada path ```App\Listeners\StoreUserLoginHistory```
+```php
+    public function handle(LoginHistory $event)
+    {
+        $current_timestamp = Carbon::now()->toDateTimeString();
+
+        $userinfo = $event->user;
+
+        $saveHistory = DB::table('login_history')->insert(
+            [
+                'name' => $userinfo->name,
+                'email' => $userinfo->email,
+                'created_at' => $current_timestamp,
+                'updated_at' => $current_timestamp
+            ]
+        );
+        return $saveHistory;
+    }
+```  
+* Pertama disini kita perlu menambahkan, syntax ```LoginHistory $event``` didalam parameter fungsi ```public function handle()```.
+* Selanjutnya, kita menambahkan syntax berikut pada fungsi ```public function handle(){}```:  
+```php
+    $current_timestamp = Carbon::now()->toDateTimeString();
+
+    $userinfo = $event->user;
+
+    $saveHistory = DB::table('login_history')->insert(
+        [
+            'name' => $userinfo->name,
+            'email' => $userinfo->email,
+            'created_at' => $current_timestamp,
+            'updated_at' => $current_timestamp
+        ]
+    );
+    return $saveHistory;
+```
 7. Menginstall starter kit yaitu Laravel Breeze
 composer require laravel/breeze --dev
 php artisan breeze:install
 npm install && npm run dev
-7. Dispatching Event di Requests -> Auth -> LoginRequest.php
-8. Membuat Queued Listener di Listeners -> StoreUserLoginHistory
-9. Menyesuaikan Queue di Listeners -> StoreUserLoginHistory
-10. Conditional Queue Listener di Listeners -> StoreUserLoginHistory
-11. Mengatasi Job yang Gagal di Listeners -> StoreUserLoginHistory
-12. Membuat Event Subscriber dengan syntax  
+8. Dispatching Event di Requests -> Auth -> LoginRequest.php
+9. Membuat Queued Listener di Listeners -> StoreUserLoginHistory
+10. Menyesuaikan Queue di Listeners -> StoreUserLoginHistory
+11. Conditional Queue Listener di Listeners -> StoreUserLoginHistory
+12. Mengatasi Job yang Gagal di Listeners -> StoreUserLoginHistory
+13. Membuat Event Subscriber dengan syntax  
     php artisan make:listener UserEventSubscriber
-13. Register Event Subscriber di Listeners -> EventServiceProvider
+14. Register Event Subscriber di Listeners -> EventServiceProvider
