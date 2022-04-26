@@ -12,24 +12,24 @@
 * Pada pembuatan project baru laravel diberi nama ```Laravel-event-and-listener```  
 2. Menambahkan ```Events``` dan ```Listeners``` baru
 ```php
-    LoginHistory::class => [
-                StoreUserLoginHistory::class,
-            ]
+LoginHistory::class => [
+            StoreUserLoginHistory::class,
+        ]
 ```   
 * Menambahkan syntax diatas di dalam ```app\Providers\EventServiceProvider``` dan pada ```class EventServiceProvider```.
 * Properti ```$listen``` merupakan array yang berisi bergbagai event (sebagai key) dan ```4listen``` yang dimilikinya (sebagai value).  
 3. Megenerate ```Events``` dan ```Listeners``` dengan menggunakan langkah alternatif
 Membuat Events dengan menggunakan syntax:  
 ```php
-    php artisan make:event LoginHistory
+php artisan make:event LoginHistory
 ```
 Membuat Listeners dengan menggunakan syntax: 
 ```php
-    php artisan make:listener StoreUserLoginHistory --event=LoginHistory
+php artisan make:listener StoreUserLoginHistory --event=LoginHistory
 ```  
 Megenerate Events dengan menggunakan syntax:
 ```php
-    php artisan event:generate
+php artisan event:generate
 ```
 * Dengan menambahkan syntax tersebut, maka akan membuat sebuah folder baru dan file baru pada ```App```.  
 * Yang pertama, yaitu membuat folder ```Events``` yang didalamnya berisi file ```LoginHistory.php```.  
@@ -37,102 +37,47 @@ Megenerate Events dengan menggunakan syntax:
 * Selain membuat folder dan file baru, perintah selanjutnya yaitu megenerate ```Events```.
 4. Meregistrasi ```Events``` dan ```Listener``` secara manual
 ```php
-    use App\Events\LoginHistory;
-    use App\Listeners\StoreUserLoginHistory;
-    use Illuminate\Support\Facades\Event;
+use App\Events\LoginHistory;
+use App\Listeners\StoreUserLoginHistory;
+use Illuminate\Support\Facades\Event;
 
-    public function boot()
-        {
-            Event::listen(
-                LoginHistory::class,
-                [StoreUserLoginHistory::class, 'handle']
+public function boot()
+    {
+        Event::listen(
+            LoginHistory::class,
+            [StoreUserLoginHistory::class, 'handle']
+        );
+
+        Event::listen(function (LoginHistory $event) {
+            $current_timestamp = Carbon::now()->toDateTimeString();
+
+            $userinfo = $event->user;
+
+            $saveHistory = DB::table('login_history')->insert(
+                [
+                    'name' => $userinfo->name,
+                    'email' => $userinfo->email,
+                    'created_at' => $current_timestamp,
+                    'updated_at' => $current_timestamp
+                ]
             );
-
-            Event::listen(function (LoginHistory $event) {
-                $current_timestamp = Carbon::now()->toDateTimeString();
-
-                $userinfo = $event->user;
-
-                $saveHistory = DB::table('login_history')->insert(
-                    [
-                        'name' => $userinfo->name,
-                        'email' => $userinfo->email,
-                        'created_at' => $current_timestamp,
-                        'updated_at' => $current_timestamp
-                    ]
-                );
-                return $saveHistory;
-            });
-        }
+            return $saveHistory;
+        });
+    }
 ```  
 * Langkah pertama, masukkan terlebih dahulu inisialisasi dari folder ```Events``` dan ```Listeners``` didalam path ```app\Providers\EventServiceProvider```, yaitu dengan memasukkan:
 ```php
-    use App\Events\LoginHistory;
-    use App\Listeners\StoreUserLoginHistory;
+use App\Events\LoginHistory;
+use App\Listeners\StoreUserLoginHistory;
 ```  
 * Langkah kedua, yaitu memasukkan class didalam fungsi ```boot``` atau ```public function boot()``` dengan syntax dibawah ini:
 ```php
-    Event::listen(
-        LoginHistory::class,
-        [StoreUserLoginHistory::class, 'handle']
-    );
+Event::listen(
+    LoginHistory::class,
+    [StoreUserLoginHistory::class, 'handle']
+);
 
-    Event::listen(function (LoginHistory $event) {
-        $current_timestamp = Carbon::now()->toDateTimeString();
-
-        $userinfo = $event->user;
-
-        $saveHistory = DB::table('login_history')->insert(
-            [
-                'name' => $userinfo->name,
-                'email' => $userinfo->email,
-                'created_at' => $current_timestamp,
-                'updated_at' => $current_timestamp
-            ]
-        );
-        return $saveHistory;
-    });
-```  
-5. Mendefinisikan ```class event``` pada path ```app\Events\LoginHistory.php```
-```php
-    use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    public $user;
-
-
-    public function __construct($user)
-    {
-        $this->user = $user;
-    }
-```  
-* Kita perlu memasukkan syntax baru dari file ```LoginHistory.php``` yang awal atau default, yaitu dengan:
-    *  Membuat dan menginisialisasikan ```user``` sebagai ```public``` seperti ```public $user;```.
-    *  Menambahkan syntax ```$user``` pada parameter ```public function __construct()```.
-    *  Menambahkan syntax ```$this->user = $user;``` didalam fungsi ```public function __construct(){}```.
-* Class ```Events``` merupakan sebuah container data yang menyimpan informasi yang berhubungan dengan event tersebut. Bisa dicontohkan dalam file ```LoginHistory.php```.
-6. Mendefinisikan ```class listener``` pada path ```app\Listeners\StoreUserLoginHistory```
-```php
-    public function handle(LoginHistory $event)
-    {
-        $current_timestamp = Carbon::now()->toDateTimeString();
-
-        $userinfo = $event->user;
-
-        $saveHistory = DB::table('login_history')->insert(
-            [
-                'name' => $userinfo->name,
-                'email' => $userinfo->email,
-                'created_at' => $current_timestamp,
-                'updated_at' => $current_timestamp
-            ]
-        );
-        return $saveHistory;
-    }
-```  
-* Di dalam method ```handle``` ini kita melakukan aksi yang dibutuhkan ketika ```events``` terjadi Contohnya kita akan mendefinisikan aksi apa yang akan dilakukan ketika ```events``` ```LoginHistory```.
-* Pertama, disini kita perlu menambahkan, syntax ```LoginHistory $event``` didalam parameter fungsi ```public function handle()```.
-* Selanjutnya, kita menambahkan syntax berikut pada fungsi ```public function handle(){}```:  
-```php
+Event::listen(function (LoginHistory $event) {
     $current_timestamp = Carbon::now()->toDateTimeString();
 
     $userinfo = $event->user;
@@ -146,42 +91,97 @@ Megenerate Events dengan menggunakan syntax:
         ]
     );
     return $saveHistory;
+});
+```  
+5. Mendefinisikan ```class event``` pada path ```app\Events\LoginHistory.php```
+```php
+use Dispatchable, InteractsWithSockets, SerializesModels;
+
+public $user;
+
+
+public function __construct($user)
+{
+    $this->user = $user;
+}
+```  
+* Kita perlu memasukkan syntax baru dari file ```LoginHistory.php``` yang awal atau default, yaitu dengan:
+    *  Membuat dan menginisialisasikan ```user``` sebagai ```public``` seperti ```public $user;```.
+    *  Menambahkan syntax ```$user``` pada parameter ```public function __construct()```.
+    *  Menambahkan syntax ```$this->user = $user;``` didalam fungsi ```public function __construct(){}```.
+* Class ```Events``` merupakan sebuah container data yang menyimpan informasi yang berhubungan dengan event tersebut. Bisa dicontohkan dalam file ```LoginHistory.php```.
+6. Mendefinisikan ```class listener``` pada path ```app\Listeners\StoreUserLoginHistory```
+```php
+public function handle(LoginHistory $event)
+{
+    $current_timestamp = Carbon::now()->toDateTimeString();
+
+    $userinfo = $event->user;
+
+    $saveHistory = DB::table('login_history')->insert(
+        [
+            'name' => $userinfo->name,
+            'email' => $userinfo->email,
+            'created_at' => $current_timestamp,
+            'updated_at' => $current_timestamp
+        ]
+    );
+    return $saveHistory;
+}
+```  
+* Di dalam method ```handle``` ini kita melakukan aksi yang dibutuhkan ketika ```events``` terjadi Contohnya kita akan mendefinisikan aksi apa yang akan dilakukan ketika ```events``` ```LoginHistory```.
+* Pertama, disini kita perlu menambahkan, syntax ```LoginHistory $event``` didalam parameter fungsi ```public function handle()```.
+* Selanjutnya, kita menambahkan syntax berikut pada fungsi ```public function handle(){}```:  
+```php
+$current_timestamp = Carbon::now()->toDateTimeString();
+
+$userinfo = $event->user;
+
+$saveHistory = DB::table('login_history')->insert(
+    [
+        'name' => $userinfo->name,
+        'email' => $userinfo->email,
+        'created_at' => $current_timestamp,
+        'updated_at' => $current_timestamp
+    ]
+);
+return $saveHistory;
 ```
 7. Menginstall starter kit yaitu Laravel Breeze
 ```php 
-    composer require laravel/breeze --dev
+composer require laravel/breeze --dev
 ```
 ```php 
-    php artisan breeze:install
+php artisan breeze:install
 ```
 ```php 
-    npm install && npm run dev
+npm install && npm run dev
 ```
 * Sebelum melakukan ```Dispatching Event``` kita harus menginstall ```Laravel Breeze``` seperti pada materi sebelumnya yaitu: materi ```Authentication```, terlebih dahulu untuk mendapatkan ```Authentication``` pada file ```LoginRequest.php``` pada ```app\Http\Requests\Auth```.
 8. Melakukan dispatching Event pada path ```app\Http\Requests\Auth\LoginRequests.php```
 ```php
-    public function authenticate()
-    {
-        $user = Auth::user();
-        LoginHistory::dispatch($user);
+public function authenticate()
+{
+    $user = Auth::user();
+    LoginHistory::dispatch($user);
 
-        $this->ensureIsNotRateLimited();
+    $this->ensureIsNotRateLimited();
 
-        if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+    if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        RateLimiter::hit($this->throttleKey());
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
-        }
-
-        RateLimiter::clear($this->throttleKey());
+        throw ValidationException::withMessages([
+            'email' => trans('auth.failed'),
+        ]);
     }
+
+    RateLimiter::clear($this->throttleKey());
+}
 ```
 * Selanjutnya kita menambahkan syntax berikut ini pada fungsi ```public function authenticate(){}```, sehingga menjadi code seperti diatas:
 ```php
-    $user = Auth::user();
-    LoginHistory::dispatch($user);
+$user = Auth::user();
+LoginHistory::dispatch($user);
 ```
 *  Pada contoh diatas kita ingin memanggil ```events``` ketika ada seorang user yang melakukan login. 
 *  Maka dari itu kita akan memanggil event pada ```app/Http/Requests/Auth/LoginRequest.php``` di dalam method ```authenticate()```. 
@@ -196,12 +196,12 @@ class StoreUserLoginHistory implements ShouldQueue
 * Menambahkan ```implements ShouldQueue``` pada class ```StoreUserLoginHistory``` yang sebelumnya default kosong atau belum di implements.
 10. Menyesuaikan Queue pada path ```App\Listeners\StoreUserLoginHistory```
 ```php 
-    class StoreUserLoginHistory implements ShouldQueue
-    {
-        public $connection = 'sqs';
-        public $queue = 'listeners';
-        public $delay = 10;
-    }
+class StoreUserLoginHistory implements ShouldQueue
+{
+    public $connection = 'sqs';
+    public $queue = 'listeners';
+    public $delay = 10;
+}
 ```
 ```php
 public function viaQueue()
@@ -212,14 +212,14 @@ public function viaQueue()
 * Dengan begitu maka ketika ```events``` yang dihandle oleh ``listeners``` ini terpanggil maka listener akan secara otomatis di queue menggunakan Laravel's queue system.
 * Menambahkan syntax berikut ini pada class ```StoreUserLoginHistory```:
 ```php
-    public $connection = 'sqs';
-    public $queue = 'listeners';
-    public $delay = 10;
-    
-    public function viaQueue()
-    {
-        return 'listeners';
-    }
+public $connection = 'sqs';
+public $queue = 'listeners';
+public $delay = 10;
+
+public function viaQueue()
+{
+    return 'listeners';
+}
 ```
 * Fungsi ```viaQueue``` yaitu berfungsi jika ingin mendifinisikan nama queue listener saat runtime.
 * Apabila ingin mengubah koneksi queue, nama queue, atau waktu delay queue dari sebuah listener, kita dapat melakukannya dengan mendefinisikan properti ```$connection```, ```$queue```, atau ```$delay``` pada ```class listener```.
@@ -233,20 +233,20 @@ public function shouldQueue(LoginHistory $event)
 * Fungsi ```shouldQueue``` yang berisi parameter ```LoginHistory $event``` berfungsi untuk me-  ueue listener berdasarkan suatu kondisi/data, selain itu dapat menentukan apakah listener akan di queue atau tidak didalamnya. Jika mereturn false maka listener tidak akan dieksekusi. 
 12. Mengatasi Job yang Gagal pada path ```App\Listeners\StoreUserLoginHistory```
 ```php
-    class StoreUserLoginHistory implements ShouldQueue
-    {
-        public $tries = 2;
+class StoreUserLoginHistory implements ShouldQueue
+{
+    public $tries = 2;
 
-        public function failed(OrderShipped $event, $exception)
-        {
-            // logic yang ingin dijalankan ketika gagal
-        }
-    }
-    
-    public function retryUntil()
+    public function failed(OrderShipped $event, $exception)
     {
-        return now()->addSeconds(5);
+        // logic yang ingin dijalankan ketika gagal
     }
+}
+
+public function retryUntil()
+{
+    return now()->addSeconds(5);
+}
 ```
 * Dengan menginisialisasikan ```public $tries = 2;``` pada ```class StoreUserLoginHistory```.
 * Batas maksimum percobaan dapat diatur dengan mendefinisikan properti ```$tries```.
@@ -255,7 +255,7 @@ public function shouldQueue(LoginHistory $event)
 * Seperti contoh, pada fungsi ```retryUntil()``` diberi batas waktu sebesar ```5 detik```.
 13. Membuat ```Event Subscriber``` pada ```App\Listeners``` dengan syntax: 
 ```php
-    php artisan make:listener UserEventSubscriber
+php artisan make:listener UserEventSubscriber
 ```
 * Setelah membuat ```Event Subscriber```, kita mendefinisikan method ```subscribe``` yang akan di pass ke dalam event dispatcher instance. Seperti Syntax berikut ini pada class ```UserEventSubscriber```:
 ```php
@@ -303,6 +303,7 @@ class EventServiceProvider extends ServiceProvider
     protected $subscribe = [
         UserEventSubscriber::class,
     ];
+}
 ```
 * Pada class ```EventServiceProvider``` kita melakukan register subsciber, dengan mendefinisikan properti ```$subscribe```.
 ## Referensi 
