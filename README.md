@@ -16,7 +16,7 @@
                 StoreUserLoginHistory::class,
             ]
 ```   
-* Menambahkan syntax diatas di dalam ```App\Providers\EventServiceProvider``` dan pada ```class EventServiceProvider```.  
+* Menambahkan syntax diatas di dalam ```app\Providers\EventServiceProvider``` dan pada ```class EventServiceProvider```.  
 3. Megenerate ```Events``` dan ```Listeners``` dengan menggunakan langkah alternatif
 Membuat Events dengan menggunakan syntax:  
 ```php
@@ -64,7 +64,7 @@ Megenerate Events dengan menggunakan syntax:
             });
         }
 ```  
-* Langkah pertama, masukkan terlebih dahulu inisialisasi dari folder ```Events``` dan ```Listeners``` didalam path ```App\Providers\EventServiceProvider```, yaitu dengan memasukkan:
+* Langkah pertama, masukkan terlebih dahulu inisialisasi dari folder ```Events``` dan ```Listeners``` didalam path ```app\Providers\EventServiceProvider```, yaitu dengan memasukkan:
 ```php
     use App\Events\LoginHistory;
     use App\Listeners\StoreUserLoginHistory;
@@ -92,7 +92,7 @@ Megenerate Events dengan menggunakan syntax:
         return $saveHistory;
     });
 ```  
-5. Mendefinisikan ```class event``` pada path ```App\Events\LoginHistory.php```
+5. Mendefinisikan ```class event``` pada path ```app\Events\LoginHistory.php```
 ```php
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -108,7 +108,7 @@ Megenerate Events dengan menggunakan syntax:
     *  Membuat dan menginisialisasikan ```user``` sebagai ```public``` seperti ```public $user;```.
     *  Menambahkan syntax ```$user``` pada parameter ```public function __construct()```.
     *  Menambahkan syntax ```$this->user = $user;``` didalam fungsi ```public function __construct(){}```.
-6. Mendefinisikan ```class listener``` pada path ```App\Listeners\StoreUserLoginHistory```
+6. Mendefinisikan ```class listener``` pada path ```app\Listeners\StoreUserLoginHistory```
 ```php
     public function handle(LoginHistory $event)
     {
@@ -127,7 +127,7 @@ Megenerate Events dengan menggunakan syntax:
         return $saveHistory;
     }
 ```  
-* Pertama disini kita perlu menambahkan, syntax ```LoginHistory $event``` didalam parameter fungsi ```public function handle()```.
+* Pertama, disini kita perlu menambahkan, syntax ```LoginHistory $event``` didalam parameter fungsi ```public function handle()```.
 * Selanjutnya, kita menambahkan syntax berikut pada fungsi ```public function handle(){}```:  
 ```php
     $current_timestamp = Carbon::now()->toDateTimeString();
@@ -145,14 +145,97 @@ Megenerate Events dengan menggunakan syntax:
     return $saveHistory;
 ```
 7. Menginstall starter kit yaitu Laravel Breeze
-composer require laravel/breeze --dev
-php artisan breeze:install
-npm install && npm run dev
-8. Dispatching Event di Requests -> Auth -> LoginRequest.php
-9. Membuat Queued Listener di Listeners -> StoreUserLoginHistory
-10. Menyesuaikan Queue di Listeners -> StoreUserLoginHistory
-11. Conditional Queue Listener di Listeners -> StoreUserLoginHistory
-12. Mengatasi Job yang Gagal di Listeners -> StoreUserLoginHistory
+    ```composer require laravel/breeze --dev```
+    ```php artisan breeze:install```
+    ```npm install && npm run dev```
+* Sebelum melakukan ```Dispatching Event``` kita harus menginstall ```Laravel Breeze``` seperti pada materi sebelumnya yaitu: materi ```Authentication```, terlebih dahulu untuk mendapatkan ```Authentication``` pada file ```LoginRequest.php``` pada ```app\Http\Requests\Auth```.
+8. Melakukan dispatching Event pada path ```app\Http\Requests\Auth\LoginRequests.php```
+```php
+    public function authenticate()
+    {
+        $user = Auth::user();
+        LoginHistory::dispatch($user);
+
+        $this->ensureIsNotRateLimited();
+
+        if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+    }
+```
+* Selanjutnya kita menambahkan syntax berikut ini pada fungsi ```public function authenticate(){}```, sehingga menjadi code seperti diatas:
+```php
+    $user = Auth::user();
+    LoginHistory::dispatch($user);
+```
+9. Membuat Queued Listener pada path ```App\Listeners\StoreUserLoginHistory.php```
+```php
+class StoreUserLoginHistory implements ShouldQueue
+{
+    //
+}
+```
+* Memanggil ```ShouldQueue``` yaitu dengan ```use Illuminate\Contracts\Queue\ShouldQueue;```
+* Menambahkan ```implements ShouldQueue``` pada class ```StoreUserLoginHistory``` yang sebelumnya belum di implements.
+10. Menyesuaikan Queue pada path ```App\Listeners\StoreUserLoginHistory```
+```php 
+    class StoreUserLoginHistory implements ShouldQueue
+    {
+        public $connection = 'sqs';
+        public $queue = 'listeners';
+        public $delay = 10;
+    }
+```
+```php
+public function viaQueue()
+{
+    return 'listeners';
+}
+```
+* Menambahkan syntax berikut ini pada class ```StoreUserLoginHistory```:
+```php
+    public $connection = 'sqs';
+    public $queue = 'listeners';
+    public $delay = 10;
+    
+    public function viaQueue()
+    {
+        return 'listeners';
+    }
+```
+* Fungsi ```viaQueue``` yaitu berfungsi jika ingin mendifinisikan nama queue listener saat runtime.
+11. Conditional Queue Listener pada path ```App\Listeners\StoreUserLoginHistory```:
+```php
+public function shouldQueue(LoginHistory $event)
+{
+    return true;
+}  
+```
+* Fungsi ```shouldQueue``` yang berisi parameter ```LoginHistory $event``` berfungsi untuk me-  ueue listener berdasarkan suatu kondisi/data, selain itu dapat menentukan apakah listener akan di queue atau tidak didalamnya. Jika mereturn false maka listener tidak akan dieksekusi. 
+12. Mengatasi Job yang Gagal pada path ```App\Listeners\StoreUserLoginHistory```
+```php
+    class StoreUserLoginHistory implements ShouldQueue
+    {
+        public $tries = 2;
+
+        public function failed(OrderShipped $event, $exception)
+        {
+            // logic yang ingin dijalankan ketika gagal
+        }
+    }
+    public function retryUntil()
+    {
+        return now()->addSeconds(5);
+    }
+```
+* Dengan menginisialisasikan ```public $tries = 2;``` pada ```class StoreUserLoginHistory```.
+* Selain itu, menambahkan fungsi ```failed``` yang berisikan parameter ```OrderShipped $event, $exception```
 13. Membuat Event Subscriber dengan syntax  
     php artisan make:listener UserEventSubscriber
 14. Register Event Subscriber di Listeners -> EventServiceProvider
