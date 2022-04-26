@@ -148,9 +148,15 @@ Megenerate Events dengan menggunakan syntax:
     return $saveHistory;
 ```
 7. Menginstall starter kit yaitu Laravel Breeze
-    ```composer require laravel/breeze --dev```
-    ```php artisan breeze:install```
-    ```npm install && npm run dev```
+```php 
+composer require laravel/breeze --dev
+```
+```php 
+php artisan breeze:install
+```
+```php 
+npm install && npm run dev
+```
 * Sebelum melakukan ```Dispatching Event``` kita harus menginstall ```Laravel Breeze``` seperti pada materi sebelumnya yaitu: materi ```Authentication```, terlebih dahulu untuk mendapatkan ```Authentication``` pada file ```LoginRequest.php``` pada ```app\Http\Requests\Auth```.
 8. Melakukan dispatching Event pada path ```app\Http\Requests\Auth\LoginRequests.php```
 ```php
