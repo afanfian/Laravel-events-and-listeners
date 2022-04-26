@@ -290,3 +290,8 @@ class EventServiceProvider extends ServiceProvider
     ];
 ```
 * Pada class ```EventServiceProvider``` kita melakukan register subsciber, dengan mendefinisikan properti ```$subscribe```.
+## Referensi 
+1. Materi Laravel Events dan Listeners
+* https://github.com/dptsi/laravel-tutorial/blob/master/Laravel-authentication-and-authorization/authentication.md
+2. Materi Laravel Authentication
+* https://github.com/dptsi/laravel-tutorial/blob/master/Laravel-event-and-listener/event.md 
