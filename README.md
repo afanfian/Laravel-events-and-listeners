@@ -10,10 +10,31 @@
 composer create-project laravel/laravel example-app
 ```  
 * Pada pembuatan project baru laravel diberi nama ```Laravel-event-and-listener```  
-2. Memasukkan login history kedalam App\Providers\EventServiceProvider
-3. Megenerate event dan listener dengan menggunakan langkah alternatif
-Membuat Event dengan menggunakan syntax: php artisan make:event LoginHistory
-Membuat Listener dengan menggunakan syntax: php artisan make:listener StoreUserLoginHistory --event=LoginHistory
+2. Menambahkan ```event``` dan ```listener``` baru
+```php
+    LoginHistory::class => [
+                StoreUserLoginHistory::class,
+            ]
+```   
+* Menambahkan syntax diatas di dalam ```App\Providers\EventServiceProvider``` dan pada ```class EventServiceProvider```.  
+3. Megenerate ```event``` dan ```listener``` dengan menggunakan langkah alternatif
+
+Membuat Event dengan menggunakan syntax:  
+```php
+    php artisan make:event LoginHistory
+```
+Membuat Listener dengan menggunakan syntax: 
+```php
+    php artisan make:listener StoreUserLoginHistory --event=LoginHistory
+```  
+Megenerate Event dan Listener dengan menggunakan syntax:
+```php
+    artisan event:generate
+```
+* Dengan menambahkan syntax tersebut, maka akan membuat sebuah folder baru dan file baru pada `App```.  
+* Yang pertama, yaitu membuat folder ```Events``` yang didalamnya berisi file ```LoginHistory.php```.  
+* Yang kedua, yaitu membuat folder ```Listeners``` yang didalamnya berisi file ```StoreUserLoginHistory.php```.  
+* Selain membuat folder dan event baru, perintah tersebut yaitu ngegenerate ```Events``` dan ```Listeners```.
 4. Mendefinisikan class event di Events -> LoginHistory.php
 5. Mendefinisikan class listener di Listeners -> StoreUserLoginHistory
 6. Menginstall starter kit yaitu Laravel Breeze
