@@ -229,6 +229,7 @@ public function shouldQueue(LoginHistory $event)
             // logic yang ingin dijalankan ketika gagal
         }
     }
+    
     public function retryUntil()
     {
         return now()->addSeconds(5);
@@ -236,6 +237,56 @@ public function shouldQueue(LoginHistory $event)
 ```
 * Dengan menginisialisasikan ```public $tries = 2;``` pada ```class StoreUserLoginHistory```.
 * Selain itu, menambahkan fungsi ```failed``` yang berisikan parameter ```OrderShipped $event, $exception```
-13. Membuat Event Subscriber dengan syntax  
+* Fungsi ```retryUntil``` berfungsi, untuk mendefinisikan batas percobaan, dengan menggunakan waktu sebagai batasannya. Batas waktu ini akan bekerja dengan mengizinkan listener melakukan percobaan berulang-kali hingga batas waktu tertentu.
+* Seperti contoh, pada fungsi ```retryUntil()``` diberi batas waktu sebesar ```5 detik```.
+13. Membuat ```Event Subscriber``` pada ```App\Listeners``` dengan syntax: 
+```php
     php artisan make:listener UserEventSubscriber
-14. Register Event Subscriber di Listeners -> EventServiceProvider
+```
+* Setelah membuat ```Event Subscriber```, kita mendefinisikan method ```subscribe``` yang akan di pass ke dalam event dispatcher instance. Seperti Syntax berikut ini pada class ```UserEventSubscriber```:
+```php
+class UserEventSubscriber
+{
+    
+    public function storeUserLogin($event) {
+        $current_timestamp = Carbon::now()->toDateTimeString();
+
+        $userinfo = $event->user;
+
+        $saveHistory = DB::table('login_history')->insert(
+            [
+                'name' => $userinfo->name,
+                'email' => $userinfo->email,
+                'created_at' => $current_timestamp,
+                'updated_at' => $current_timestamp
+            ]
+        );
+        return $saveHistory;
+    }
+
+    /**
+     * Register the listeners for the subscriber.
+     *
+     * @param  \Illuminate\Events\Dispatcher  $events
+     * @return void
+     */
+    public function subscribe($events)
+    {
+        $events->listen(
+            LoginHistory::class,
+            [UserEventSubscriber::class, 'storeUserLogin']
+        );
+    }
+}
+```
+14. Register Event Subscriber pada path ```App\Listeners\EventServiceProvider```
+```php 
+use App\Listeners\UserEventSubscriber;
+
+class EventServiceProvider extends ServiceProvider
+{
+    protected $subscribe = [
+        UserEventSubscriber::class,
+    ];
+```
+* Pada class ```EventServiceProvider``` kita melakukan register subsciber, dengan mendefinisikan properti ```$subscribe```.
