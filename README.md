@@ -9,7 +9,7 @@
 ```php
 composer create-project laravel/laravel example-app
 ```  
-Pada pembuatan project baru laravel ```example-app``` saya ubah dan diberi nama ```Laravel-event-and-listener```  
+* Pada pembuatan project baru laravel diberi nama ```Laravel-event-and-listener```  
 2. Memasukkan login history kedalam App\Providers\EventServiceProvider
 3. Megenerate event dan listener dengan menggunakan langkah alternatif
 Membuat Event dengan menggunakan syntax: php artisan make:event LoginHistory
