@@ -16,7 +16,8 @@
                 StoreUserLoginHistory::class,
             ]
 ```   
-* Menambahkan syntax diatas di dalam ```app\Providers\EventServiceProvider``` dan pada ```class EventServiceProvider```.  
+* Menambahkan syntax diatas di dalam ```app\Providers\EventServiceProvider``` dan pada ```class EventServiceProvider```.
+* Properti ```$listen``` merupakan array yang berisi bergbagai event (sebagai key) dan ```4listen``` yang dimilikinya (sebagai value).  
 3. Megenerate ```Events``` dan ```Listeners``` dengan menggunakan langkah alternatif
 Membuat Events dengan menggunakan syntax:  
 ```php
@@ -108,6 +109,7 @@ Megenerate Events dengan menggunakan syntax:
     *  Membuat dan menginisialisasikan ```user``` sebagai ```public``` seperti ```public $user;```.
     *  Menambahkan syntax ```$user``` pada parameter ```public function __construct()```.
     *  Menambahkan syntax ```$this->user = $user;``` didalam fungsi ```public function __construct(){}```.
+* Class ```Events``` merupakan sebuah container data yang menyimpan informasi yang berhubungan dengan event tersebut. Bisa dicontohkan dalam file ```LoginHistory.php```.
 6. Mendefinisikan ```class listener``` pada path ```app\Listeners\StoreUserLoginHistory```
 ```php
     public function handle(LoginHistory $event)
@@ -127,6 +129,7 @@ Megenerate Events dengan menggunakan syntax:
         return $saveHistory;
     }
 ```  
+* Di dalam method ```handle``` ini kita melakukan aksi yang dibutuhkan ketika ```events``` terjadi Contohnya kita akan mendefinisikan aksi apa yang akan dilakukan ketika ```events``` ```LoginHistory```.
 * Pertama, disini kita perlu menambahkan, syntax ```LoginHistory $event``` didalam parameter fungsi ```public function handle()```.
 * Selanjutnya, kita menambahkan syntax berikut pada fungsi ```public function handle(){}```:  
 ```php
@@ -174,6 +177,8 @@ Megenerate Events dengan menggunakan syntax:
     $user = Auth::user();
     LoginHistory::dispatch($user);
 ```
+*  Pada contoh diatas kita ingin memanggil ```events``` ketika ada seorang user yang melakukan login. 
+*  Maka dari itu kita akan memanggil event pada ```app/Http/Requests/Auth/LoginRequest.php``` di dalam method ```authenticate()```. 
 9. Membuat Queued Listener pada path ```App\Listeners\StoreUserLoginHistory.php```
 ```php
 class StoreUserLoginHistory implements ShouldQueue
@@ -182,7 +187,7 @@ class StoreUserLoginHistory implements ShouldQueue
 }
 ```
 * Memanggil ```ShouldQueue``` yaitu dengan ```use Illuminate\Contracts\Queue\ShouldQueue;```
-* Menambahkan ```implements ShouldQueue``` pada class ```StoreUserLoginHistory``` yang sebelumnya belum di implements.
+* Menambahkan ```implements ShouldQueue``` pada class ```StoreUserLoginHistory``` yang sebelumnya default kosong atau belum di implements.
 10. Menyesuaikan Queue pada path ```App\Listeners\StoreUserLoginHistory```
 ```php 
     class StoreUserLoginHistory implements ShouldQueue
@@ -198,6 +203,7 @@ public function viaQueue()
     return 'listeners';
 }
 ```
+* Dengan begitu maka ketika ```events``` yang dihandle oleh ``listeners``` ini terpanggil maka listener akan secara otomatis di queue menggunakan Laravel's queue system.
 * Menambahkan syntax berikut ini pada class ```StoreUserLoginHistory```:
 ```php
     public $connection = 'sqs';
@@ -210,6 +216,7 @@ public function viaQueue()
     }
 ```
 * Fungsi ```viaQueue``` yaitu berfungsi jika ingin mendifinisikan nama queue listener saat runtime.
+* Apabila ingin mengubah koneksi queue, nama queue, atau waktu delay queue dari sebuah listener, kita dapat melakukannya dengan mendefinisikan properti ```$connection```, ```$queue```, atau ```$delay``` pada ```class listener```.
 11. Conditional Queue Listener pada path ```App\Listeners\StoreUserLoginHistory```:
 ```php
 public function shouldQueue(LoginHistory $event)
@@ -236,6 +243,7 @@ public function shouldQueue(LoginHistory $event)
     }
 ```
 * Dengan menginisialisasikan ```public $tries = 2;``` pada ```class StoreUserLoginHistory```.
+* Batas maksimum percobaan dapat diatur dengan mendefinisikan properti ```$tries```.
 * Selain itu, menambahkan fungsi ```failed``` yang berisikan parameter ```OrderShipped $event, $exception```
 * Fungsi ```retryUntil``` berfungsi, untuk mendefinisikan batas percobaan, dengan menggunakan waktu sebagai batasannya. Batas waktu ini akan bekerja dengan mengizinkan listener melakukan percobaan berulang-kali hingga batas waktu tertentu.
 * Seperti contoh, pada fungsi ```retryUntil()``` diberi batas waktu sebesar ```5 detik```.
@@ -279,6 +287,7 @@ class UserEventSubscriber
     }
 }
 ```
+* Dari contoh dapat terlihat kita membuat method ```storeUserLogin```. Method ini merupakan ```handle``` yang akan dijalankan ketika event ```LoginHistory``` terpanggil. Di bagian ```subscribe``` kita menghubungkan event LoginHistory dengan method ```storeUserLogin``` tadi.
 14. Register Event Subscriber pada path ```App\Listeners\EventServiceProvider```
 ```php 
 use App\Listeners\UserEventSubscriber;
