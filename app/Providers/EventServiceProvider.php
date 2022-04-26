@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\LoginHistory;
+use App\Listeners\StoreUserLoginHistory;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -18,6 +20,13 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        LoginHistory::class => [
+            StoreUserLoginHistory::class,
+        ]
+    ];
+
+    protected $subscribe = [
+        UserEventSubscriber::class,
     ];
 
     /**
@@ -27,7 +36,26 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Event::listen(
+            LoginHistory::class,
+            [StoreUserLoginHistory::class, 'handle']
+        );
+
+        Event::listen(function (LoginHistory $event) {
+            $current_timestamp = Carbon::now()->toDateTimeString();
+
+            $userinfo = $event->user;
+
+            $saveHistory = DB::table('login_history')->insert(
+                [
+                    'name' => $userinfo->name,
+                    'email' => $userinfo->email,
+                    'created_at' => $current_timestamp,
+                    'updated_at' => $current_timestamp
+                ]
+            );
+            return $saveHistory;
+        });
     }
 
     /**
