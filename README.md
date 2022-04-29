@@ -1,7 +1,9 @@
 # Laravel Events and Listener
 ## Anggota Kelompok:
-1. Fian Awamiry Maulana 5025201035
-2. Putu Ravindra Wiguna 5025201237
+| No    | Nama          | NRP  |
+| ------------- |:-------------:| -----:|
+| 1      | Fian Awamiry Maulana | 5025201035 |
+| 2      | Putu Ravindra Wiguna      |   5025201237 |
 ## Fungsi dari Laravel Events
 ## Fungsi dari Laravel Listener
 ## Cara Pemakaian Laravel Events dan Listener
