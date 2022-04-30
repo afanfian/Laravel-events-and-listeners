@@ -1,4 +1,4 @@
-# Laravel Events and Listener
+# Laravel Events and Listeners
 ## Anggota Kelompok:
 | No    | Nama          | NRP  |
 | ------------- |:-------------:| -----:|
@@ -30,10 +30,10 @@ protected $listen = [
 ];
 ```
 
-## Fungsi dari Laravel Listener
+## Fungsi dari Laravel Listeners
 Sama seperti event, listener dalam laravel ini merupakan bagian dari _Observer Pattern_ yang dapat mensubscribe suatu event dan melakukan sesuatu berdasarkan event tersebut. Biasanya kelas listener disimpan dalam directory ```app/Listeners```. Untuk membuat listener pada laravel kita dapat menggunakan command console Artisan seperti ```php artisan make:listener {NamaListener} --event={NamaEvent}```. Sama seperti event, kita perlu mendaftarkannya ke ```App\Providers\EventServiceProvider```<br>
 
-## Cara Pemakaian Laravel Events dan Listener
+## Cara Pemakaian Laravel Events dan Listeners
 1. Membuat project laravel baru 
 ```php
     composer create-project laravel/laravel example-app
