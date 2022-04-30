@@ -4,8 +4,35 @@
 | ------------- |:-------------:| -----:|
 | 1      | Fian Awamiry Maulana | 5025201035 |
 | 2      | Putu Ravindra Wiguna      |   5025201237 |
-## Fungsi dari Laravel Events
+## Fungsi dari Laravel Events<br>
+
+Event Laravel merupakan suatu cara yang bagus untuk memisahkan berbagai aspek dalam applikasi kita. Dimana event dalam laravel ini memberikan implementasi _Oberserver Pattern_ sederhana yang memungkinkan kita untuk mensubscribe ke berbagai event yang terjadi dalam aplikasi kita.<br>
+
+Suatu event dapat memiliki banyak listener yang tidak bergantung satu sama lainnya. Misalnya dalam suatu aplikasi, kita ingin mengirimkan notifikasi Slack kepada user tiap kali sebuah pemesanan telah dikirim. Daripada menyatukan kode untuk mengirim notifikasi dan memproses pemesanan, kita dapat memunculkan event ```App\Events\OrderShipped``` yang mana akan diterima listener dan digunakan untuk memunculkan notifikasi Slack.<br>
+
+Kelas dari event ini biasanya disimpan dalam directory ```app/Events```. Secara default biasanya directory ini belum ada, tetapi jangan khawatir karena kita dapat membuatnya secara otomatis saat kita menggunakan command console Artisan seperti ```php artisan make:event {NamaEvent}``` untuk membuat event.<br>
+
+Setelah membuat event pada laravel, kita perlu mendaftarkannya pada ```App\Providers\EventServiceProvider```. Terdapat beberapa cara untuk mendaftarkan event, salah satu cara tersebut adalah dengan menambahkannya ke array ```$listen``` pada ```EventsServiceProvider```. Properti ```listen``` ini berisikan array yang menyimpan semua event (key) dan listener (value) dalam aplikasi kita. Kita tinggal menambahkan event dan listener yang kita buat pada array tersebut.<br>
+Berikut adalah contoh menambahkan ```OrderShipped``` event pada ```App\Providers\EventServiceProvider```:<br>
+```php
+use App\Events\OrderShipped;
+use App\Listeners\SendShipmentNotification;
+ 
+/**
+ * The event listener mappings for the application.
+ *
+ * @var array
+ */
+protected $listen = [
+    OrderShipped::class => [
+        SendShipmentNotification::class,
+    ],
+];
+```
+
 ## Fungsi dari Laravel Listener
+Sama seperti event, listener dalam laravel ini merupakan bagian dari _Observer Pattern_ yang dapat mensubscribe suatu event dan melakukan sesuatu berdasarkan event tersebut. Biasanya kelas listener disimpan dalam directory ```app/Listeners```. Untuk membuat listener pada laravel kita dapat menggunakan command console Artisan seperti ```php artisan make:listener {NamaListener} --event={NamaEvent}```. Sama seperti event, kita perlu mendaftarkannya ke ```App\Providers\EventServiceProvider```<br>
+
 ## Cara Pemakaian Laravel Events dan Listener
 1. Membuat project laravel baru 
 ```php
@@ -313,3 +340,5 @@ class EventServiceProvider extends ServiceProvider
 * https://github.com/dptsi/laravel-tutorial/blob/master/Laravel-authentication-and-authorization/authentication.md
 2. Materi Laravel Authentication
 * https://github.com/dptsi/laravel-tutorial/blob/master/Laravel-event-and-listener/event.md 
+3. Dokumentasi Official Laravel
+* https://laravel.com/docs/9.x/events
