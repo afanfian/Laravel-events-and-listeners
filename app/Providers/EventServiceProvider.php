@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\LoginHistory;
 use App\Listeners\StoreUserLoginHistory;
+use App\Listeners\UserEventSubscriber;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
