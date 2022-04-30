@@ -46,16 +46,22 @@ LoginHistory::class => [
         ]
 ```   
 * Menambahkan syntax diatas di dalam ```app\Providers\EventServiceProvider``` dan pada ```class EventServiceProvider```.
-* Properti ```$listen``` merupakan array yang berisi bergbagai event (sebagai key) dan ```4listen``` yang dimilikinya (sebagai value).  
+* Properti ```$listen``` merupakan array yang berisi bergbagai event (sebagai key) dan ```$listen``` yang dimilikinya (sebagai value).  
 3. Megenerate ```Events``` dan ```Listeners``` dengan menggunakan langkah alternatif
 Membuat Events dengan menggunakan syntax:  
 ```php
 php artisan make:event LoginHistory
 ```
+Hasil:<br>
+<img src="https://user-images.githubusercontent.com/77233945/166098629-ac8c4d0c-dc0b-4c61-8183-b8853e6961cc.png" alt="Hasil Make Event" width="1080">
+Terdapat directory baru yakni ```app/Events``` dan file ```LoginHistory.php```<br><hr>
 Membuat Listeners dengan menggunakan syntax: 
 ```php
 php artisan make:listener StoreUserLoginHistory --event=LoginHistory
-```  
+```
+Hasil:<br>
+<img alt="HasilMakeListener" src="https://user-images.githubusercontent.com/77233945/166098844-e66ce40c-a8f4-45ce-80dc-897ffbf30c00.png" width="1080">
+Terdapat directory baru yakni ```app/Listeners``` dan file ```StoreUserLoginHistory.php```<br><hr>
 Megenerate Events dengan menggunakan syntax:
 ```php
 php artisan event:generate
