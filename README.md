@@ -275,7 +275,7 @@ class StoreUserLoginHistory implements ShouldQueue
 {
     public $tries = 2;
 
-    public function failed(OrderShipped $event, $exception)
+    public function failed(LoginHistory $event, $exception)
     {
         // logic yang ingin dijalankan ketika gagal
     }
