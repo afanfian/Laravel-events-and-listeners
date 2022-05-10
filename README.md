@@ -47,7 +47,7 @@ LoginHistory::class => [
             StoreUserLoginHistory::class,
         ]
 ```   
-3. Megenerate ```Events``` dan ```Listeners``` dengan menggunakan langkah alternatif pada ```app/Events/LoginHistory.php```
+3. Megenerate ```Events``` dan ```Listeners``` dengan menggunakan langkah alternatif
 Membuat Events dengan menggunakan syntax:  
 ```php
 php artisan make:event LoginHistory
@@ -186,12 +186,15 @@ return $saveHistory;
 ```php 
 composer require laravel/breeze --dev
 ```
+* Command diatas berfungsi untuk menginstal package dari ```laravel/breeze```.
 ```php 
 php artisan breeze:install
 ```
+* Command diatas berfungsi untuk menginstall ```breeze``` pada laravel.
 ```php 
 npm install && npm run dev
 ```
+* Command diatas berfungsi untuk menginstall ```npm```  dan menjalan kan ```npm```. Jika tidak menjalankan command diatas, kita tidak bisa mendapatkan apa yang kita inginkan pada langkah selanjutnya yaitu, file ```LoginRequest.php``` pada path ```app\Http\Requests\Auth\LoginRequests.php```.
 * Sebelum melakukan ```Dispatching Event``` kita harus menginstall ```Laravel Breeze``` seperti pada materi sebelumnya yaitu: materi ```Authentication```, terlebih dahulu untuk mendapatkan ```Authentication``` pada file ```LoginRequest.php``` pada ```app\Http\Requests\Auth```.
 8. Melakukan dispatching Event pada path ```app\Http\Requests\Auth\LoginRequests.php```
 ```php
