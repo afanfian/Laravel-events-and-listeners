@@ -332,7 +332,7 @@ class UserEventSubscriber
 }
 ```
 * Dari contoh dapat terlihat kita membuat method ```storeUserLogin```. Method ini merupakan ```handle``` yang akan dijalankan ketika event ```LoginHistory``` terpanggil. Di bagian ```subscribe``` kita menghubungkan event LoginHistory dengan method ```storeUserLogin``` tadi.
-14. Register Event Subscriber pada path ```App\Listeners\EventServiceProvider```
+14. Register Event Subscriber pada path ```App\Provider\EventServiceProvider```
 ```php 
 use App\Listeners\UserEventSubscriber;
 
