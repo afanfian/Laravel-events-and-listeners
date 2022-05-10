@@ -40,14 +40,14 @@ Sama seperti event, listener dalam laravel ini merupakan bagian dari _Observer P
 ```  
 * Pada pembuatan project baru laravel diberi nama ```Laravel-event-and-listener```  
 2. Menambahkan ```Events``` dan ```Listeners``` baru
+* Menambahkan syntax diatas di dalam ```app\Providers\EventServiceProvider``` dan pada ```class EventServiceProvider```.
+* Properti ```$listen``` merupakan array yang berisi bergbagai event (sebagai key) dan ```$listen``` yang dimilikinya (sebagai value).  
 ```php
 LoginHistory::class => [
             StoreUserLoginHistory::class,
         ]
 ```   
-* Menambahkan syntax diatas di dalam ```app\Providers\EventServiceProvider``` dan pada ```class EventServiceProvider```.
-* Properti ```$listen``` merupakan array yang berisi bergbagai event (sebagai key) dan ```$listen``` yang dimilikinya (sebagai value).  
-3. Megenerate ```Events``` dan ```Listeners``` dengan menggunakan langkah alternatif
+3. Megenerate ```Events``` dan ```Listeners``` dengan menggunakan langkah alternatif pada ```app/Events/LoginHistory.php```
 Membuat Events dengan menggunakan syntax:  
 ```php
 php artisan make:event LoginHistory
@@ -70,7 +70,7 @@ php artisan event:generate
 * Yang pertama, yaitu membuat folder ```Events``` yang didalamnya berisi file ```LoginHistory.php```.  
 * Yang kedua, yaitu membuat folder ```Listeners``` yang didalamnya berisi file ```StoreUserLoginHistory.php```.  
 * Selain membuat folder dan file baru, perintah selanjutnya yaitu megenerate ```Events```.
-4. Meregistrasi ```Events``` dan ```Listener``` secara manual
+4. Meregistrasi ```Events``` dan ```Listener``` secara manual pada path ```app\Providers\EventServiceProvider```
 ```php
 use App\Events\LoginHistory;
 use App\Listeners\StoreUserLoginHistory;
